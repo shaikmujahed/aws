@@ -1,6 +1,5 @@
----
-title: '**VM-Series for AWS**'
----
+
+#Palo Alto VM-Series for AWS
 
 ![](media/image1.png){width="5.347222222222222in"
 height="2.851851487314086in"}
