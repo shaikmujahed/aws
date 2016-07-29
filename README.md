@@ -1,7 +1,8 @@
+---
+title: '**VM-Series for AWS**'
+---
 
-#Palo Alto VM-Series for AWS
-
-![](media/image1.png){width="5.347222222222222in"
+![](images/image1.png){width="5.347222222222222in"
 height="2.851851487314086in"}
 
 **GlobalProtect in an AWS Auto Scaling Environment **
@@ -90,7 +91,7 @@ and work from home. Another very common scenario is a surge of users
 logging on to the gateway at the start of the day and thus a need for a
 dynamic scale out of gateways (and scale in at the end of the day)
 
-![](media/image2.png){width="6.5in" height="3.189583333333333in"}
+![](images/image2.png){width="6.5in" height="3.189583333333333in"}
 
 About CFTs
 ==========
@@ -129,7 +130,7 @@ The template referenced by this document will deploy all the resources
 needed for the purposes of the demo and setup the appropriate
 permissions and get to the topology below:
 
-![](media/image3.emf){width="5.638888888888889in"
+![](images/image3.emf){width="5.638888888888889in"
 height="4.263888888888889in"}
 
 <span id="_Toc319837951" class="anchor"><span id="_Toc452984010" class="anchor"></span></span>AWS Services Used
@@ -225,22 +226,22 @@ agreement for the VM-Series.
 Click on **AWS Marketplace** and search for **Palo Alto Networks
 firewall**:
 
-![](media/image4.png){width="6.5in" height="3.5319444444444446in"}
+![](images/image4.png){width="6.5in" height="3.5319444444444446in"}
 
-![](media/image5.emf){width="6.494827209098863in"
+![](images/image5.emf){width="6.494827209098863in"
 height="2.956266404199475in"}
 
 Select **VM-Series Next Generation Firewall Bundle 2**
 
-![](media/image6.emf){width="6.175395888013998in"
+![](images/image6.emf){width="6.175395888013998in"
 height="1.58998687664042in"}
 
-![](media/image7.emf){width="6.28862532808399in"
+![](images/image7.emf){width="6.28862532808399in"
 height="3.9611111111111112in"}
 
 Click **Continue**.
 
-![](media/image8.emf){width="6.797133639545057in"
+![](images/image8.emf){width="6.797133639545057in"
 height="4.586111111111111in"}
 
 Click on **Manual** Launch, Review the agreement and then click **Accept
@@ -248,7 +249,7 @@ Software Terms**
 
 You should see this screen:
 
-![](media/image9.emf){width="6.43125in" height="1.0743449256342956in"}
+![](images/image9.emf){width="6.43125in" height="1.0743449256342956in"}
 
 You can now close the browser tab or window and continue with the next
 step.
@@ -258,20 +259,20 @@ step.
 
 Sign into the AWS console <https://www.amazon.com> and click on **EC2**
 
-![](media/image10.emf){width="6.5in" height="3.3472222222222223in"}
+![](images/image10.emf){width="6.5in" height="3.3472222222222223in"}
 
 Click **KeyPairs**
 
-![](media/image11.emf){width="6.396008311461068in"
+![](images/image11.emf){width="6.396008311461068in"
 height="1.9504516622922135in"}
 
 Click **Create Key Pair**
 
-![](media/image12.png){width="6.5in" height="0.6222222222222222in"}
+![](images/image12.png){width="6.5in" height="0.6222222222222222in"}
 
 Give the key-pair a name:
 
-![](media/image13.emf){width="6.412250656167979in"
+![](images/image13.emf){width="6.412250656167979in"
 height="2.581266404199475in"}
 
 And click **Create**. This should now prompt you to save the just
@@ -324,12 +325,12 @@ Create S3 Buckets
 In order to launch the demo template three S3 buckets will be required.
 Log into the AWS console and click on **S3:**
 
-![](media/image14.png){width="6.485416666666667in"
+![](images/image14.png){width="6.485416666666667in"
 height="4.593836395450569in"}
 
 And click “**Create Bucket”** button**:**
 
-![](media/image15.png){width="4.364583333333333in"
+![](images/image15.png){width="4.364583333333333in"
 height="1.7604166666666667in"}
 
 Type-in a bucket name (needs to be unique) and select the region in
@@ -344,25 +345,25 @@ and Tokyo).
 **Note:** If launching the CFT in N. Virginia, select the region as
 “**US Standard”**
 
-![](media/image16.png){width="6.5in" height="3.10625in"}
+![](images/image16.png){width="6.5in" height="3.10625in"}
 
 Once the bucket is created, click on the bucket name to navigate to the
 bucket and create **four** sub-buckets called **config, content,
 license** and **software** respectively. Navigate to the **config**
 bucket and click “**Upload”**
 
-![](media/image17.png){width="4.069444444444445in" height="1.25in"}
+![](images/image17.png){width="4.069444444444445in" height="1.25in"}
 
-![](media/image18.png){width="4.083333333333333in"
+![](images/image18.png){width="4.083333333333333in"
 height="2.5694444444444446in"}
 
 In the next dialog box, drag and drop the two files – **init-cfg.txt**
 and **bootstrap.xml** from the **gateway** folder created in the
 [previous step](#_Download_the_Files) and click “**Start Upload**”:
 
-![](media/image19.png){width="3.5in" height="1.3020833333333333in"}
+![](images/image19.png){width="3.5in" height="1.3020833333333333in"}
 
-![](media/image20.png){width="6.5in" height="3.8930555555555557in"}
+![](images/image20.png){width="6.5in" height="3.8930555555555557in"}
 
 Repeat the above steps and create a bucket to upload the portal’s
 bootstrap configuration files.
@@ -377,21 +378,21 @@ bootstrap buckets and upload the config\_fw.zip file into that bucket
 Login in to the AWS console <https://console.aws.amazon.com> and click
 on **CloudFormation**
 
-![](media/image21.png){width="6.5in" height="2.1777777777777776in"}
+![](images/image21.png){width="6.5in" height="2.1777777777777776in"}
 
 **Note: Please make sure that your region (on the top right) is set to a
 region where Lambda is available (and the S3 buckets were created).**
 
 Click **Create Stack**:
 
-![](media/image22.emf){width="6.447732939632546in"
+![](images/image22.emf){width="6.447732939632546in"
 height="1.2673129921259843in"}
 
 Select “**Upload a template to S3**” and click the “**Choose File**”
 button. Then select the asg-lambda.json template file. Then, click
 **Next**:
 
-![](media/image23.png){width="6.5in" height="2.8583333333333334in"}
+![](images/image23.png){width="6.5in" height="2.8583333333333334in"}
 
 In the next screen specify a “**Stack Name**”. Specify the gateway
 bootstrap bucket name for the **GatewayBootstrapBucketName** parameter,
@@ -403,17 +404,17 @@ Select a **Serverkey** for which you have the private key. Refer to
 [section 2.4](#_Create_and_download) on how to generate a keypair. Once
 satisfied, click **Next**.
 
-![](media/image24.png){width="6.5in" height="3.0618055555555554in"}
+![](images/image24.png){width="6.5in" height="3.0618055555555554in"}
 
 On the next screen you can specify tags (optional) otherwise click
 **Next**.
 
-![](media/image25.emf){width="6.546196412948381in"
+![](images/image25.emf){width="6.546196412948381in"
 height="2.48533573928259in"}
 
 Next, review and check acknowledge at the bottom and click **Create**.
 
-![](media/image26.png){width="6.5in" height="3.783333333333333in"}
+![](images/image26.png){width="6.5in" height="3.783333333333333in"}
 
 Once launched you should be able to monitor the stack creation progress
 in the next screen by clicking on the **Events** tab.
@@ -421,11 +422,11 @@ in the next screen by clicking on the **Events** tab.
 **Note: The template takes about 10-15 minutes to fully deploy and be
 operational.**
 
-![](media/image27.png){width="6.5in" height="2.451388888888889in"}
+![](images/image27.png){width="6.5in" height="2.451388888888889in"}
 
 If the CFT was successfully launched, you should see an event as below:
 
-![](media/image28.png){width="6.5in" height="3.401388888888889in"}
+![](images/image28.png){width="6.5in" height="3.401388888888889in"}
 
 If there were any errors during the creation of the stack, you will need
 to drill down to the specific event in the **Events** tab and
@@ -437,7 +438,7 @@ the first error is the actual issue.
 For instance, if you did not accept the VM-Series EULA, then you will
 get an error as seen below
 
-![](media/image29.emf){width="6.52238845144357in"
+![](images/image29.emf){width="6.52238845144357in"
 height="3.081266404199475in"}
 
 Refer to [section 2.3](#_Accept_the_EULA) to review and accept the EULA
@@ -446,7 +447,7 @@ for the VM-Series NGFW
 **Note: If you need to relaunch the CFT, first delete the current
 stack under Actions, Delete Stack. **
 
-![](media/image30.emf){width="6.456101268591426in"
+![](images/image30.emf){width="6.456101268591426in"
 height="3.0754516622922137in"}
 
 <span id="_Toc319837964" class="anchor"><span id="_Toc452984025" class="anchor"></span></span>Launch the First Gateway
@@ -455,42 +456,42 @@ height="3.0754516622922137in"}
 After the template has been deployed successfully, go back to the
 console and click on “**EC2**”:
 
-![](media/image31.png){width="6.5in" height="1.325in"}
+![](images/image31.png){width="6.5in" height="1.325in"}
 
 And click on “**Auto Scaling Groups**”
 
-![](media/image32.png){width="6.5in" height="4.26875in"}
+![](images/image32.png){width="6.5in" height="4.26875in"}
 
 You should see the auto scaling group created by the template. Click
 “**Edit**”
 
-![](media/image33.png){width="6.5in" height="2.8826388888888888in"}
+![](images/image33.png){width="6.5in" height="2.8826388888888888in"}
 
 and change the “**Desired”** and “**Min**” fields to “1” and click
 “**Save**”:
 
-![](media/image34.png){width="6.5in" height="3.2527777777777778in"}
+![](images/image34.png){width="6.5in" height="3.2527777777777778in"}
 
 This will trigger an auto scale event and launch a new VM-Series
 firewall and bootstrap it as a GlobalProtect Gateway. You can see this
 by clicking on “**Instances**” on the left:
 
-![](media/image35.png){width="6.5in" height="1.3159722222222223in"}
+![](images/image35.png){width="6.5in" height="1.3159722222222223in"}
 
 From launch to configured, it takes about 10 minutes. You can monitor
 the logs if so desired by clicking on “**CloudWatch**” on the AWS
 console
 
-![](media/image36.png){width="6.5in" height="2.3243055555555556in"}
+![](images/image36.png){width="6.5in" height="2.3243055555555556in"}
 
 and then on “**Logs”** on the left:
 
-![](media/image37.png){width="6.5in" height="5.106944444444444in"}
+![](images/image37.png){width="6.5in" height="5.106944444444444in"}
 
 A good indication that the GlobalProtect Gateway is up is the creation
 of the “**PushMetrics**” log group:
 
-![](media/image38.png){width="6.5in" height="1.5590277777777777in"}
+![](images/image38.png){width="6.5in" height="1.5590277777777777in"}
 
 This indicates that the gateway is up and publishing metrics to
 CloudWatch.
@@ -509,7 +510,7 @@ for an auto scale event to occur.
 To verify click on “**Alarms**” on the left and click on the “**OK**”
 link:
 
-![](media/image39.png){width="6.5in" height="0.9888888888888889in"}
+![](images/image39.png){width="6.5in" height="0.9888888888888889in"}
 
 In the above screen capture, you see two alarms. MAX\_SESS\_REACHED and
 MIN\_SESS\_REACHED. These alarms are triggered based on metrics
@@ -520,7 +521,7 @@ minutes, the MAX\_SESS\_REACHED alarm is triggered, which in turn
 triggers scale-out event, which deploys a new GP gateway within the Auto
 Scale Group
 
-![](media/image40.png){width="6.5in" height="2.0625in"}
+![](images/image40.png){width="6.5in" height="2.0625in"}
 
 Similarly, if the number of sessions is less than 5 and stays that way
 for 30 minutes, the MIN\_SESS\_REACHED alarm is triggered (as in the
@@ -530,7 +531,7 @@ terminated.
 **Note:** There will always be at least one gateway (depending on your
 configuration for the minimum number of gateways)
 
-![](media/image41.png){width="6.5in" height="2.5770833333333334in"}
+![](images/image41.png){width="6.5in" height="2.5770833333333334in"}
 
 Trigger an Auto Scale Event
 ===========================
@@ -542,18 +543,18 @@ was used.
 To determine the GP Portal address, head on over to CloudFormation in
 the AWS console
 
-![](media/image42.png){width="6.5in" height="1.988888888888889in"}
+![](images/image42.png){width="6.5in" height="1.988888888888889in"}
 
 and select the stack that was just deployed. Under the “**Outputs**” tab
 note the **GPPortalPublicIP** address
 
-![](media/image43.png){width="6.5in" height="1.4131944444444444in"}
+![](images/image43.png){width="6.5in" height="1.4131944444444444in"}
 
 In the GlobalProtect client panel specify the above **GPPortalPublicIP**
 address as the Portal address. The username and password is
 gp-user1/paloalto or gp-user2/paloalto
 
-![](media/image44.png){width="6.5in" height="5.201388888888889in"}
+![](images/image44.png){width="6.5in" height="5.201388888888889in"}
 
 If you get an error (as seen above) that the client could not connect to
 the portal, you may need to disable the GlobalProtect client on your
@@ -563,44 +564,44 @@ corporate firewalls may not allow the connection to go through.
 Once connected you should see the Portal and Gateway information in the
 client “**Details**” tab:
 
-![](media/image45.png){width="6.5in" height="5.192361111111111in"}
+![](images/image45.png){width="6.5in" height="5.192361111111111in"}
 
 To verify that by connecting to the gateway the session count goes up
 head on over the AWS console and click on CloudWatch and you should see
 a small spike in the metrics for MAX\_SESSION\_REACHED:
 
-![](media/image46.png){width="4.644212598425197in"
+![](images/image46.png){width="4.644212598425197in"
 height="3.5828379265091863in"}
 
 To trigger an event, in the VM open up a web browser and pick a few of
 your favorite websites to visit:
 
-![](media/image47.png){width="5.468287401574803in"
+![](images/image47.png){width="5.468287401574803in"
 height="4.426040026246719in"}
 
 This will cause the session count to go up, trigger the alarm and cause
 a scale-out event and a new gateway will be provisioned, bootstrapped,
 configured and added to the Auto Scale Group.
 
-![](media/image48.png){width="4.495833333333334in"
+![](images/image48.png){width="4.495833333333334in"
 height="3.4814818460192476in"}
 
-![](media/image49.png){width="6.5in" height="1.0833333333333333in"}
+![](images/image49.png){width="6.5in" height="1.0833333333333333in"}
 
 Once the new gateway is up, it will be added to the pool of gateways.
 Verify this in the GP Client by selecting “**Rediscover Network**”:
 
-![](media/image50.png){width="6.5in" height="5.241666666666666in"}
+![](images/image50.png){width="6.5in" height="5.241666666666666in"}
 
 To trigger a scale-in event, close all the browser sessions (or shutdown
 the VM) and that will trigger a scale-in event
 
-![](media/image51.png){width="5.805154199475066in"
+![](images/image51.png){width="5.805154199475066in"
 height="4.581481846019248in"}
 
 and a gateway will be removed from service
 
-![](media/image52.png){width="6.5in" height="0.9986111111111111in"}
+![](images/image52.png){width="6.5in" height="0.9986111111111111in"}
 
 Cleanup
 =======
@@ -609,11 +610,11 @@ Once done with the template, feel free to play around with various
 things. If done, cleanup as follows. In the AWS management console,
 click on **CloudFormation**:
 
-![](media/image21.png){width="6.5in" height="2.1777777777777776in"}
+![](images/image21.png){width="6.5in" height="2.1777777777777776in"}
 
 Under **Actions**, click **Delete Stack:**
 
-![](media/image53.png){width="6.5in" height="1.854861111111111in"}
+![](images/image53.png){width="6.5in" height="1.854861111111111in"}
 
 This should delete all the resources created via the template.
 
@@ -621,21 +622,20 @@ This should delete all the resources created via the template.
 dependencies that AWS is not able to automatically delete. So, if stack
 deletion fails, head on over to the VPC console
 
-![](media/image54.png){width="6.5in" height="4.576388888888889in"}
+![](images/image54.png){width="6.5in" height="4.576388888888889in"}
 
 and select **VPCs**
 
-![](media/image55.png){width="6.5in" height="4.315972222222222in"}
+![](images/image55.png){width="6.5in" height="4.315972222222222in"}
 
 Select the VPC in question and select “**Delete VPC**” from the
 “**Actions**” menu and click “**Yes**, **Delete**”
 
-![](media/image56.png){width="6.5in" height="1.5291666666666666in"}
+![](images/image56.png){width="6.5in" height="1.5291666666666666in"}
 
-![](media/image57.png){width="6.5in" height="3.5729166666666665in"}
+![](images/image57.png){width="6.5in" height="3.5729166666666665in"}
 
 <span id="_Toc319837967" class="anchor"><span id="_Toc452984029" class="anchor"></span></span>Conclusion
 ========================================================================================================
 
-You have successfully deployed and demonstrated GlobalProtect in an AWS
-Auto Scaling environment
+You have successfully deployed and demonstrated GlobalProtect in an AWS Auto Scaling environment
