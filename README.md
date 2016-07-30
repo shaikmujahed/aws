@@ -1,14 +1,13 @@
----
-title: '**VM-Series for AWS**'
----
+# VM-Series for AWS
 
 ![](images/image1.png)
 
-**GlobalProtect in an AWS Auto Scaling Environment **
+## GlobalProtect in an AWS Auto Scaling Environment
 
 <http://www.paloaltonetworks.com>
 
-Table of Contents
+
+## Table of Contents
 
 [1. Global Protect 3](#_Toc452984006)
 
