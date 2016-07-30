@@ -130,7 +130,7 @@ The template referenced by this document will deploy all the resources
 needed for the purposes of the demo and setup the appropriate
 permissions and get to the topology below:
 
-![](images/image3.emf){width="5.638888888888889in"
+![](images/image3.png){width="5.638888888888889in"
 height="4.263888888888889in"}
 
 <span id="_Toc319837951" class="anchor"><span id="_Toc452984010" class="anchor"></span></span>AWS Services Used
@@ -228,20 +228,20 @@ firewall**:
 
 ![](images/image4.png){width="6.5in" height="3.5319444444444446in"}
 
-![](images/image5.emf){width="6.494827209098863in"
+![](images/image5.png){width="6.494827209098863in"
 height="2.956266404199475in"}
 
 Select **VM-Series Next Generation Firewall Bundle 2**
 
-![](images/image6.emf){width="6.175395888013998in"
+![](images/image6.png){width="6.175395888013998in"
 height="1.58998687664042in"}
 
-![](images/image7.emf){width="6.28862532808399in"
+![](images/image7.png){width="6.28862532808399in"
 height="3.9611111111111112in"}
 
 Click **Continue**.
 
-![](images/image8.emf){width="6.797133639545057in"
+![](images/image8.png){width="6.797133639545057in"
 height="4.586111111111111in"}
 
 Click on **Manual** Launch, Review the agreement and then click **Accept
@@ -249,7 +249,7 @@ Software Terms**
 
 You should see this screen:
 
-![](images/image9.emf){width="6.43125in" height="1.0743449256342956in"}
+![](images/image9.png){width="6.43125in" height="1.0743449256342956in"}
 
 You can now close the browser tab or window and continue with the next
 step.
@@ -259,11 +259,11 @@ step.
 
 Sign into the AWS console <https://www.amazon.com> and click on **EC2**
 
-![](images/image10.emf){width="6.5in" height="3.3472222222222223in"}
+![](images/image10.png){width="6.5in" height="3.3472222222222223in"}
 
 Click **KeyPairs**
 
-![](images/image11.emf){width="6.396008311461068in"
+![](images/image11.png){width="6.396008311461068in"
 height="1.9504516622922135in"}
 
 Click **Create Key Pair**
@@ -272,7 +272,7 @@ Click **Create Key Pair**
 
 Give the key-pair a name:
 
-![](images/image13.emf){width="6.412250656167979in"
+![](images/image13.png){width="6.412250656167979in"
 height="2.581266404199475in"}
 
 And click **Create**. This should now prompt you to save the just
@@ -385,7 +385,7 @@ region where Lambda is available (and the S3 buckets were created).**
 
 Click **Create Stack**:
 
-![](images/image22.emf){width="6.447732939632546in"
+![](images/image22.png){width="6.447732939632546in"
 height="1.2673129921259843in"}
 
 Select “**Upload a template to S3**” and click the “**Choose File**”
@@ -409,7 +409,7 @@ satisfied, click **Next**.
 On the next screen you can specify tags (optional) otherwise click
 **Next**.
 
-![](images/image25.emf){width="6.546196412948381in"
+![](images/image25.png){width="6.546196412948381in"
 height="2.48533573928259in"}
 
 Next, review and check acknowledge at the bottom and click **Create**.
@@ -438,7 +438,7 @@ the first error is the actual issue.
 For instance, if you did not accept the VM-Series EULA, then you will
 get an error as seen below
 
-![](images/image29.emf){width="6.52238845144357in"
+![](images/image29.png){width="6.52238845144357in"
 height="3.081266404199475in"}
 
 Refer to [section 2.3](#_Accept_the_EULA) to review and accept the EULA
@@ -447,7 +447,7 @@ for the VM-Series NGFW
 **Note: If you need to relaunch the CFT, first delete the current
 stack under Actions, Delete Stack. **
 
-![](images/image30.emf){width="6.456101268591426in"
+![](images/image30.png){width="6.456101268591426in"
 height="3.0754516622922137in"}
 
 <span id="_Toc319837964" class="anchor"><span id="_Toc452984025" class="anchor"></span></span>Launch the First Gateway
