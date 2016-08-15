@@ -5,7 +5,7 @@
 
   "Parameters" : {
     "ServerKeyName": {
-      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances from SecurityController",
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
     "PortalBootstrapBucketName":{
@@ -25,8 +25,12 @@
   "Mappings": {
     "PANGFWAWSRegionMap" : {
       "us-west-2"     : { "AMI": "ami-e4be4b84" },
-      "us-west-1"     : { "AMI": "ami-12d0ad72" },
-      "us-east-1"     : { "AMI": "ami-29a8a243" }
+      "eu-west-1"     : { "AMI": "ami-5d92132e"},
+      "us-east-1"     : { "AMI": "ami-29a8a243" },
+      "eu-central-1"     : { "AMI": "ami-8be001e4"},
+      "ap-northeast-1"   : { "AMI": "ami-b84b5ad6"},
+      "ap-southeast-1"   : { "AMI": "ami-946da7f7"},
+      "ap-southeast-2"   : { "AMI": "ami-d7c6e5b4"}
     }
   },
 
