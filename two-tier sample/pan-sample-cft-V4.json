@@ -1,0 +1,564 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "Install WordPress server, and database fronted by PANW Firewall (sample-cft).",
+
+  "Parameters": {
+    "BootstrapBucketName":{
+        "Description": "Bucket name for FW bootstrap configuration",
+        "Type": "String"
+    },
+    "ServerKeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the FW (Hint: You MUST have its private key)",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    }
+  },
+
+  "Mappings": {
+    "PANFWRegionMap" : {
+        "us-east-1"        : { "AMI": "ami-29a8a243"},
+        "us-west-2"        : { "AMI": "ami-e4be4b84"},
+        "us-west-1"        : { "AMI": "ami-12d0ad72"},
+        "eu-central-1"     : { "AMI": "ami-8be001e4"},
+        "eu-west-1"        : { "AMI": "ami-5d92132e"},
+        "ap-southeast-1"   : { "AMI": "ami-946da7f7"},
+        "ap-southeast-2"   : { "AMI": "ami-d7c6e5b4"},
+        "ap-northeast-1"   : { "AMI": "ami-b84b5ad6"},
+        "ap-northeast-2"   : { "AMI": "ami-fb08c195"},
+        "sa-east-1"        : { "AMI": "ami-19810e75"}
+    },
+
+    "WPDBRegionMap" : {
+        "us-west-2"      :  { "AMI": "ami-5ceb0c3c" },
+        "ap-northeast-1" :  { "AMI": "ami-1f192171" },
+        "us-west-1"      :  { "AMI": "ami-fd0a789d" },
+        "ap-northeast-2" :  { "AMI": "ami-43e72d2d" },
+        "ap-southeast-1" :  { "AMI": "ami-41944b22" }, 
+        "ap-southeast-2" :  { "AMI": "ami-7187ad12" },
+        "eu-central-1" :  { "AMI": "ami-f2ee1a9d" },
+        "eu-west-1" :  { "AMI": "ami-75690b06" },
+        "sa-east-1" :  { "AMI": "ami-72de491e" },
+        "us-east-1" :  { "AMI": "ami-e96ee6fe" }
+    },
+
+    "WPWEBRegionMap" : {
+        "us-west-2"      :  { "AMI": "ami-7018ff10" },
+        "ap-northeast-1" :  { "AMI": "ami-fe87bf90" },
+        "us-west-1"      :  { "AMI": "ami-e60e7c86" },
+        "ap-northeast-2" :  { "AMI": "ami-5ae72d34" },
+        "ap-southeast-1" :  { "AMI": "ami-879649e4" },
+        "ap-southeast-2" :  { "AMI": "ami-0c85af6f" },
+        "eu-central-1" :  { "AMI": "ami-96e81cf9" },
+        "eu-west-1" :  { "AMI": "ami-79167b0a" },
+        "sa-east-1" :  { "AMI": "ami-82e176ee" },
+        "us-east-1" :  { "AMI": "ami-b94dc7ae" }
+    }
+  },
+
+  "Resources": {
+    "BootstrapRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+            "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [ {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": "ec2.amazonaws.com"
+                    },
+                "Action": "sts:AssumeRole"
+                } ]
+            },
+            "Path":"/",
+            "Policies": [ {
+                "PolicyName" : "BootstrapRolePolicy",
+                "PolicyDocument": {
+                    "Version" : "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": "s3:ListBucket",
+                        "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" }]]}
+                    },
+                    {
+                        "Effect": "Allow",
+                        "Action": "s3:GetObject",
+                        "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" } , "/*" ]]}
+                    }]
+                }
+            }]
+        }
+    },
+    "BootstrapInstanceProfile":{
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+          "Path": "/",
+          "Roles": [ {
+              "Ref": "BootstrapRole"
+            }]
+        }
+    },
+
+    "NewVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "InstanceTenancy": "default",
+        "EnableDnsSupport": "true",
+        "EnableDnsHostnames": "true",
+        "Tags": [{ "Key": "Name", "Value": "PAN Sample CFT" }]
+      }
+    },
+
+    "PublicElasticIP": {
+       "Type" : "AWS::EC2::EIP",
+       "Properties" : {
+          "Domain" : "vpc"
+       },
+       "DependsOn": [ "NewVPC" ]
+    },
+
+    "ManagementElasticIP": {
+       "Type" : "AWS::EC2::EIP",
+       "Properties" : {
+          "Domain" : "vpc"
+       },
+       "DependsOn": [ "NewVPC" ]
+    },
+
+    "NewDBSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.2.0/24",
+        "VpcId": {"Ref": "NewVPC"},
+        "AvailabilityZone": "" ,
+        "Tags": [{ "Key": "Name", "Value": "PAN Sample CFT" }]
+      },
+      "DependsOn": "NewVPC"
+    },
+
+    "NewPublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/24",
+        "VpcId": {"Ref": "NewVPC"},
+        "AvailabilityZone": { "Fn::GetAtt" : [ "NewDBSubnet", "AvailabilityZone" ] },
+        "Tags": [{ "Key": "Name", "Value": "PAN Sample CFT" }]
+      },
+      "DependsOn": [ "NewVPC", "NewDBSubnet" ]
+    },
+
+    "NewWebSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": "10.0.1.0/24",
+        "AvailabilityZone": { "Fn::GetAtt" : [ "NewDBSubnet", "AvailabilityZone" ] },
+        "VpcId": {"Ref": "NewVPC"},
+        "Tags": [{ "Key": "Name", "Value": "PAN Sample CFT" }]
+      },
+      "DependsOn":[ "NewVPC", "NewDBSubnet" ]
+    },
+
+    "igweb3def8e": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{ "Key": "Name", "Value": "PAN Sample CFT" }]
+      }
+    },
+
+    "dopt21c7d043": {
+      "Type": "AWS::EC2::DHCPOptions",
+      "Properties": {
+        "DomainName": "us-west-2.compute.internal",
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      }
+    },
+
+    "aclb765d6d2": {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {"Ref": "NewVPC"}
+      }
+    },
+
+    "rtb059a2460": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {"Ref": "NewVPC"}
+      }
+    },
+
+    "rtb049a2461": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {"Ref": "NewVPC"}
+      }
+    },
+
+    "FWManagementNetworkInterface": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "AWS FW1 MGMT",
+        "SubnetId": {"Ref": "NewPublicSubnet"},
+        "SourceDestCheck": "false",
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.0.0.99",
+            "Primary": "true"
+          }
+        ],
+        "GroupSet": [{"Ref": "sgWideOpen"}],
+        "Tags": [{"Key": "Name","Value": "WP AWS FW1 MGMT"}]
+      },
+      "DependsOn": [ "sgWideOpen" ]
+    },
+
+    "FWPublicNetworkInterface": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "AWS FW1 E1/1",
+        "SubnetId": {"Ref": "NewPublicSubnet"},
+        "SourceDestCheck": "false",
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.0.0.100",
+            "Primary": "true"
+          }
+        ],
+        "GroupSet": [{"Ref": "sgWideOpen"}],
+        "Tags": [{"Key": "Name","Value": "WP AWS FW1 E1/1"}]
+      },
+      "DependsOn": [ "sgWideOpen" ]
+    },
+
+    "FWPrivate12NetworkInterface": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "AWS FW1 E1/2",
+        "SubnetId": {"Ref": "NewWebSubnet"},
+        "SourceDestCheck": "false",
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.0.1.11",
+            "Primary": "true"
+          }
+        ],
+        "GroupSet": [{"Ref": "sgWideOpen"}],
+        "Tags": [{"Key": "Name","Value": "WP AWS FW1 E1/2"}]
+      },
+      "DependsOn": [ "sgWideOpen" ]
+    },
+
+    "FWPrivate13NetworkInterface": {
+      "Type": "AWS::EC2::NetworkInterface",
+      "Properties": {
+        "Description": "AWS FW1 E1/3",
+        "SubnetId": {"Ref": "NewDBSubnet"},
+        "SourceDestCheck": "false",
+        "PrivateIpAddresses": [
+          {
+            "PrivateIpAddress": "10.0.2.11",
+            "Primary": "true"
+          }
+        ],
+        "GroupSet": [{"Ref": "sgWideOpen"}],
+        "Tags": [{"Key": "Name", "Value": "WP AWS FW1 E1/3"}]
+      },
+      "DependsOn": [ "sgWideOpen" ]
+    },
+
+    "FWEIPMAnagementAssociation": {
+       "Type": "AWS::EC2::EIPAssociation",
+       "Properties": {
+          "AllocationId": { "Fn::GetAtt": [ "ManagementElasticIP", "AllocationId" ] },
+          "NetworkInterfaceId": { "Ref": "FWManagementNetworkInterface" }
+       },
+       "DependsOn": [ "FWManagementNetworkInterface", "ManagementElasticIP" ]
+    },
+
+    "FWEIPPublicAssociation": {
+       "Type": "AWS::EC2::EIPAssociation",
+       "Properties": {
+          "AllocationId": { "Fn::GetAtt": [ "PublicElasticIP", "AllocationId" ] },
+          "NetworkInterfaceId": { "Ref": "FWPublicNetworkInterface" }
+       },
+       "DependsOn": [ "FWPublicNetworkInterface", "PublicElasticIP" ]
+    },
+
+    "sgWideOpen": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Wide open security group",
+        "VpcId": {"Ref": "NewVPC"},
+         "Tags": [{"Key": "Name","Value": "Lab External SG"}],
+        "SecurityGroupIngress" : [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress" : [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+          ]
+      }
+    },
+
+    "acl1": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "aclb765d6d2"
+        }
+      }
+    },
+
+    "acl2": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "aclb765d6d2"
+        }
+      }
+    },
+
+    "subnetacl1": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {"Ref": "aclb765d6d2"},
+        "SubnetId": {"Ref": "NewDBSubnet"}
+      }
+    },
+    "subnetacl2": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {"Ref": "aclb765d6d2"},
+        "SubnetId": {"Ref": "NewPublicSubnet"}
+      }
+    },
+    "subnetacl3": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "NetworkAclId": {"Ref": "aclb765d6d2"},
+        "SubnetId": {"Ref": "NewWebSubnet"}
+      }
+    },
+
+    "gw1": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {"Ref": "NewVPC"},
+        "InternetGatewayId": {"Ref": "igweb3def8e"}
+      }
+    },
+
+    "subnetroute2": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {"Ref": "rtb049a2461"},
+        "SubnetId": {"Ref": "NewPublicSubnet"}
+      }
+    },
+
+    "route1": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {"Ref": "rtb059a2460"},
+        "GatewayId": {"Ref": "igweb3def8e"}
+      },
+      "DependsOn": "gw1"
+    },
+
+    "route2": {
+      "Type": "AWS::EC2::Route",
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {"Ref": "rtb049a2461"},
+        "GatewayId": {"Ref": "igweb3def8e"}
+      },
+      "DependsOn": "gw1"
+    },
+
+    "dchpassoc1": {
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Properties": {
+        "VpcId": {"Ref": "NewVPC"},
+        "DhcpOptionsId": {"Ref": "dopt21c7d043"}
+      }
+    },
+
+    "FWInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "IamInstanceProfile": {"Ref": "BootstrapInstanceProfile"},
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "EbsOptimized": "true",
+        "ImageId": { "Fn::FindInMap" : [ "PANFWRegionMap", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "InstanceType": "c4.xlarge",
+        "BlockDeviceMappings" :
+        [
+            {
+              "DeviceName" : "/dev/xvda",
+              "Ebs" :
+              {
+                "VolumeType" : "gp2",
+                "DeleteOnTermination" : "true",
+                "VolumeSize" : "40"
+              }
+            }
+        ],
+        "KeyName":  { "Ref" : "ServerKeyName" },
+        "Monitoring": "false",
+        "Tags": [{ "Key": "Name", "Value": "WP VM-Series Firewall" }],
+        "NetworkInterfaces": [
+          {
+            "NetworkInterfaceId": { "Ref": "FWManagementNetworkInterface"},
+            "DeviceIndex": 0
+          },
+          {
+            "NetworkInterfaceId": { "Ref": "FWPublicNetworkInterface"},
+            "DeviceIndex": 1
+          },
+          {
+            "NetworkInterfaceId": { "Ref": "FWPrivate12NetworkInterface"},
+            "DeviceIndex": 2
+          },
+          {
+            "NetworkInterfaceId": { "Ref": "FWPrivate13NetworkInterface"},
+            "DeviceIndex": 3
+          }
+        ],
+        "UserData":  { "Fn::Base64" : { "Fn::Join" : ["", [
+            "vmseries-bootstrap-aws-s3bucket=",  { "Ref" : "BootstrapBucketName" }
+        ]]}}
+      },
+      "DependsOn": [ "FWPublicNetworkInterface", "FWPrivate12NetworkInterface", "FWPrivate13NetworkInterface", "NewPublicSubnet" ]
+    },
+
+    "WPDBServerInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "ImageId": { "Fn::FindInMap" : [ "WPDBRegionMap", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "InstanceType": "t1.micro",
+        "KeyName": { "Ref": "ServerKeyName" },
+        "Monitoring": "false",
+        "Tags": [{ "Key": "Name", "Value": "WP DB Server 1" }],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "NewDBSubnet"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "10.0.2.101",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "sgWideOpen"
+              }
+            ]
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#! /bin/bash\n",
+
+            "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1\n",
+
+            "echo \"export new_routers='10.0.2.11'\" >> /etc/dhcp/dhclient-enter-hooks.d/aws-default-route\n",
+            "ifdown eth0\n",
+            "ifup eth0\n"
+        ]]}
+      }},
+      "DependsOn": [ "NewDBSubnet", "sgWideOpen" ]
+    },
+
+    "WPWebInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "DisableApiTermination": "false",
+        "InstanceInitiatedShutdownBehavior": "stop",
+        "ImageId": { "Fn::FindInMap" : [ "WPWEBRegionMap", { "Ref" : "AWS::Region" }, "AMI" ] },
+        "InstanceType": "t1.micro",
+        "KeyName": { "Ref": "ServerKeyName" },
+        "Monitoring": "false",
+        "Tags": [{"Key": "Name","Value": "WP Web Server 1"}],
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "Description": "Primary network interface",
+            "DeviceIndex": 0,
+            "SubnetId": {
+              "Ref": "NewWebSubnet"
+            },
+            "PrivateIpAddresses": [
+              {
+                "PrivateIpAddress": "10.0.1.101",
+                "Primary": "true"
+              }
+            ],
+            "GroupSet": [
+              {
+                "Ref": "sgWideOpen"
+              }
+            ]
+          }
+        ],
+        "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#! /bin/bash\n",
+
+            "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1\n",
+
+            "cp /etc/wordpress/config-52.10.68.86.php /etc/wordpress/config-",
+              { "Ref": "PublicElasticIP" }, 
+              ".php\n",
+            "echo \"export new_routers='10.0.1.11'\" >> /etc/dhcp/dhclient-enter-hooks.d/aws-default-route\n",
+            "ifdown eth0\n",
+            "ifup eth0\n"
+          ]]}
+        }
+      },
+      "DependsOn": [ "NewWebSubnet", "sgWideOpen", "PublicElasticIP" ]
+    }
+
+  },
+
+  "Outputs": {
+    "FirewallManagementURL": {
+      "Description": "VM-Series management interface URL",
+      "Value": { "Fn::Join" : ["", [
+        "https://",
+        { "Fn::GetAtt": [ "FWInstance", "PublicIp" ]}
+      ]]}
+    },
+
+    "WordpressURL": {
+      "Description": "Wordpress server",
+      "Value": { "Fn::Join" : ["", [
+        "http://",
+        { "Ref": "PublicElasticIP" },
+        "/wordpress"
+      ]]}
+    }
+  }
+}
