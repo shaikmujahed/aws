@@ -1,12 +1,9 @@
 # Global Protect in AWS with autoscaling
-NOTE: This solution is not officially supported by Palo Alto Networks.
+Deploy GlobalProtect in an AWS AutoScaling environment
 
+For step by step instructions please follow the guide here:
+https://github.com/PaloAltoNetworks/aws/blob/master/globalprotect-asg/AWS_GP_autoscaling_guide.pdf
 
-1.	Global Protect
-GlobalProtect allows remote users to access corporate resources and internet resources using the same security policy enforcement as though there were on premises. To provide Next-Generation Security Platform closer to the remote users, GlobalProtect gateways can be deployed in AWS. This allows instantiation of portals and gateways near remote users without the additional cost of infrastructure. 
-Leveraging the global presence and built in redundancy provided by AWS, Global Protect can be quickly deployed worldwide where your users are.  Traffic is inspected with the same PAN-OS security as the corporate firewall but in a globally diverse deployment.  The result is security that follows users – even when they are mobile and a better user experience.
-
-2.	GlobalProtect and AutoScaling
-Running within the AWS infrastructure provides the ability to scale-out and scale-in on demand. Take the use cases of both planned and unplanned need for dynamic scaling. Planned events such as a conferences or sales kick-offs where lots of users all try to connect to a regional gateway. And unplanned events such as “snowmageddon” where users are snowed in and work from home. Another very common scenario is a surge of users logging on to the gateway at the start of the day and thus a need for a dynamic scale out of gateways (and scale in at the end of the day)
-
-Please refer to the deployment guide for more details on how to launch the template (docs/gp-asg-guide.pdf)
+#Support Policy
+This CFT is released under an as-is, best effort, support policy. These scripts should be seen as community supported and Palo Alto Networks will contribute our expertise as and when possible. We do not provide technical support or help in using or troubleshooting the components of the project through our normal support options such as Palo Alto Networks support teams, or ASC (Authorized Support Centers) partners and backline support options. The underlying product used (the VM-Series firewall) by the scripts or templates are still supported, but the support is only for the product functionality and not for help in deploying or using the template or script itself.
+Unless explicitly tagged, all projects or work posted in our GitHub repository (at https://github.com/PaloAltoNetworks/aws) or sites other than our official Downloads page on https://support.paloaltonetworks.com are provided under the best effort policy.
