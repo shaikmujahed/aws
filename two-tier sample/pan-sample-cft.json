@@ -17,6 +17,7 @@
   "Mappings": {
     "PANFWRegionMap" : {
         "us-east-1"        : { "AMI": "ami-29a8a243"},
+        "us-east-2"        : { "AMI": "ami-c295cfa7"},
         "us-west-2"        : { "AMI": "ami-e4be4b84"},
         "us-west-1"        : { "AMI": "ami-12d0ad72"},
         "eu-central-1"     : { "AMI": "ami-8be001e4"},
@@ -38,7 +39,8 @@
         "eu-central-1" :  { "AMI": "ami-f2ee1a9d" },
         "eu-west-1" :  { "AMI": "ami-75690b06" },
         "sa-east-1" :  { "AMI": "ami-72de491e" },
-        "us-east-1" :  { "AMI": "ami-e96ee6fe" }
+        "us-east-1" :  { "AMI": "ami-e96ee6fe" },
+        "us-east-2" :  { "AMI": "ami-cea9f3ab" }
     },
 
     "WPWEBRegionMap" : {
@@ -51,7 +53,8 @@
         "eu-central-1" :  { "AMI": "ami-96e81cf9" },
         "eu-west-1" :  { "AMI": "ami-79167b0a" },
         "sa-east-1" :  { "AMI": "ami-82e176ee" },
-        "us-east-1" :  { "AMI": "ami-b94dc7ae" }
+        "us-east-1" :  { "AMI": "ami-b94dc7ae" },
+        "us-east-2" :  { "AMI": "ami-5aaef43f" }
     }
   },
 
