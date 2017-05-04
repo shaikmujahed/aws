@@ -3,7 +3,6 @@
 
   "Description": "Install WordPress server, and database fronted by PANW Firewall (sample-cft).",
 
-  "Parameters": {
  "Parameters": {
     "BootstrapBucketName":{
         "Description": "Bucket name for FW bootstrap configuration",
@@ -13,7 +12,6 @@
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the FW (Hint: You MUST have its private key)",
       "Type": "AWS::EC2::KeyPair::KeyName"
     }
-  }
   },
 
   "Mappings": {
