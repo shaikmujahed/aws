@@ -2,7 +2,7 @@
 
 Sample template that will deploy a two-tiered apllication environment (using a CFT) secured by a VM series firewall.
 For step by step instructions please refer to the deployment guide here:
-https://github.com/PaloAltoNetworks/aws/blob/master/two-tier%20sample/AWS_CFT_How_To_Guide-UTD.pdf
+https://github.com/PaloAltoNetworks/aws/blob/master/two-tier-sample/AWS_CFT_How_To_Guide-UTD.pdf
 
 
 # Topology
