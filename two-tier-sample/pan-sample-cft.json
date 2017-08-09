@@ -16,20 +16,20 @@
 
   "Mappings": {
     "PANFWRegionMap" : {
-        "us-west-2"      :  { "AMI": "ami-e614af86"},
-        "ap-northeast-1" :  { "AMI": "ami-4bbcfa2c"},
-        "us-west-1"      :  { "AMI": "ami-84a1fce4"},
-        "ap-northeast-2" :  { "AMI": "ami-59419037"},
-        "ap-southeast-1" :  { "AMI": "ami-17a41074"},
-        "ap-southeast-2" :  { "AMI": "ami-10303673"},
-        "eu-central-1"   :  { "AMI": "ami-e93df486"},
-        "eu-west-1"      :  { "AMI": "ami-43f1aa25"},
-        "eu-west-2"      :  { "AMI": "ami-d44d58b0"},
-        "sa-east-1"      :  { "AMI": "ami-12b4d07e"},
-        "us-east-1"      :  { "AMI": "ami-2127dc37"},
-        "us-east-2"      :  { "AMI": "ami-810d28e4"},
-        "ca-central-1"   :  { "AMI": "ami-6ebd000a"},
-        "ap-south-1"     :  { "AMI": "ami-556a1b3a"}
+        "us-west-2"      :  { "AMI": "ami-d28992ab"},
+        "ap-northeast-1" :  { "AMI": "ami-ab04e7cd"},
+        "us-west-1"      :  { "AMI": "ami-0f88a16f"},
+        "ap-northeast-2" :  { "AMI": "ami-6cbd6402"},
+        "ap-southeast-1" :  { "AMI": "ami-1897057b"},
+        "ap-southeast-2" :  { "AMI": "ami-8ed3cced"},
+        "eu-central-1"   :  { "AMI": "ami-6df35f02"},
+        "eu-west-1"      :  { "AMI": "ami-86d63eff"},
+        "eu-west-2"      :  { "AMI": "ami-3c170658"},
+        "sa-east-1"      :  { "AMI": "ami-15651279"},
+        "us-east-1"      :  { "AMI": "ami-7dcb9906"},
+        "us-east-2"      :  { "AMI": "ami-f1200094"},
+        "ca-central-1"   :  { "AMI": "ami-0f08b76b"},
+        "ap-south-1"     :  { "AMI": "ami-1ffc8470"}
     },
 
     "UbuntuRegionMap" : {
@@ -72,12 +72,12 @@
                     "Statement": [{
                         "Effect": "Allow",
                         "Action": "s3:ListBucket",
-                         "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" }]]}                         
+                         "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" }]]}
                     },
                     {
                         "Effect": "Allow",
                         "Action": "s3:GetObject",
-                         "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" } , "/*" ]]}                        
+                         "Resource": { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "BootstrapBucketName" } , "/*" ]]}
                     }]
                 }
             }]
@@ -483,7 +483,7 @@
             "ifdown eth0\n",
             "ifup eth0\n",
             "while true\n",
-            " do\n", 
+            " do\n",
             "  resp=$(curl -s -S -g --insecure \"https://",{"Ref": "ManagementElasticIP"},"/api/?type=op&cmd=<show><chassis-ready></chassis-ready></show>&key=LUFRPT10VGJKTEV6a0R4L1JXd0ZmbmNvdUEwa25wMlU9d0N5d292d2FXNXBBeEFBUW5pV2xoZz09\")\n",
             "  if [[ $resp == *\"[CDATA[yes\"* ]] ; then\n",
             "    break\n",
@@ -611,4 +611,3 @@
     }
   }
 }
-
