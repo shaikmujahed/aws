@@ -7,7 +7,7 @@ https://github.com/PaloAltoNetworks/aws/blob/master/two-tier-sample/AWS_CFT_How_
 
 # Topology
 
-<img src="https://github.com/PaloAltoNetworks/aws/blob/master/two-tier%20sample/topology.png"/>
+<img src="https://github.com/PaloAltoNetworks/aws/blob/master/two-tier-sample/topology.png"/>
 
 # Support Policy
 This CFT is released under an as-is, best effort, support policy. These scripts should be seen as community supported and Palo Alto Networks will contribute our expertise as and when possible. We do not provide technical support or help in using or troubleshooting the components of the project through our normal support options such as Palo Alto Networks support teams, or ASC (Authorized Support Centers) partners and backline support options. The underlying product used (the VM-Series firewall) by the scripts or templates are still supported, but the support is only for the product functionality and not for help in deploying or using the template or script itself.
