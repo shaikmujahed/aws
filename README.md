@@ -6,3 +6,6 @@ Unless explicitly tagged, all projects or work posted in our GitHub repository (
 
 # Proceed with Caution: 
 These repositories contain default password information and should be used for Proof of Concept purposes only. If you wish to use this template in a production environment it is your responsibility to change the default passwords. 
+
+# Curated List of Projects
+For a curated list of repositories related to VM-Series for AWS see http://live.paloaltonetworks.com/aws
