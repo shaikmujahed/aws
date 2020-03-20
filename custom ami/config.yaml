@@ -1,0 +1,27 @@
+########################################
+############## AWS CONFIG ##############
+########################################
+
+secret-key-id: 'A***H'
+secret-access-key: 'B***3'
+region: 'us-west-1'
+
+ami-id: 'ami-03801628148e17514'
+mgmt-subnet-id: 'subnet-04fbcf63f1cc4fffc'
+sg-id: 'sg-0bc54b68a3ff9c226'
+instance-type: 'm4.xlarge'
+key-pair-name: 'custom-ami'
+instance-pkey: '/path/to/directory/custom_ami/private_key.pem'
+auth-code: 'I0000009'               # Leave empty for PAYG/Bundle
+delicensing-api-key: '6********d'   # Leave empty for PAYG/Bundle
+
+########################################
+############## CUSTOM AMI ##############
+########################################
+
+vm-series-plugin-version: 'vm_series-1.0.9'
+software-version: 'PanOSXFR_vm-9.0.5.xfr'
+content-version: 'latest'   # For BYOL: 'panupv2-all-apps-8246-5993' # For PAYG/Bundle: 'panupv2-all-contents-8246-5993'
+antivirus-version:                              # For PAYG/Bundle: 'panup-all-antivirus-3267-3778'
+
+########################################
