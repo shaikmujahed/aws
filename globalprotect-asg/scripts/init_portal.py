@@ -18,19 +18,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-
 import boto3
 import logging
 import json
-import httplib
+import http.client
 import xml.etree.ElementTree as et
 import time
-from urlparse import urlparse
+from urllib.parse import urlparse
 from contextlib import closing
 import ssl
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 ec2 = boto3.resource('ec2')
 ec2_client = boto3.client('ec2')
@@ -106,24 +103,20 @@ def init_portal_lambda_handler(event, context):
         if PortalMgmtIp == None:
             logger.info("[ERROR]: didn't get Portal MGMT IP addresses")
             raise Exception("[ERROR]: Didn't get Portal MGMT IP")
-            return
         PortalDPIp = event.get('portal-dp-ip')
         if PortalMgmtIp == None:
             logger.info("[ERROR]: didn't get Portal DP IP addresses")
             raise Exception("[ERROR]: Didn't get Portal DP IP")
-            return
         this_func_name = event.get('init-portal-func-name')
         if this_func_name == None:
             logger.info("[ERROR]: Didn't get function name")
             raise Exception("[ERROR]: Didn't get function name")
-            return
         else:
             logger.info("[INFO]: function name {}".format(this_func_name))
 
     else:
         logger.info("[ERROR]: How did I get here?")
         raise Exception("[ERROR]: How did I get here?")
-        return
 
 
     #The api key is pre-generated for  api_user/Pal0Alt0
@@ -169,7 +162,7 @@ def init_portal_lambda_handler(event, context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     return
@@ -192,7 +185,7 @@ def init_portal_lambda_handler(event, context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     return
@@ -214,7 +207,7 @@ def init_portal_lambda_handler(event, context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     return
@@ -256,6 +249,7 @@ def send_command(cmd):
     global job_id
     global gconext
     global api_key
+    gconext = ""
 
     job_id = ""
 
@@ -271,7 +265,7 @@ def send_command(cmd):
 
     logger.info('[INFO]: Sending command: %s', cmd_string)
     try:
-        response = urllib2.urlopen(cmd_string, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(cmd_string, context=gcontext, timeout=5).read()
         #Now we do stuff to the portal
         logger.info("[RESPONSE] in send command: {}".format(response))
     except:
@@ -334,9 +328,9 @@ def check_fw_up():
     #Send command to fw and see if it times out or we get a response
     logger.info('[INFO]: Sending command: %s', cmd)
     try:
-        response = urllib2.urlopen(cmd, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(cmd, context=gcontext, timeout=5).read()
         #Now we do stuff to the portal
-    except urllib2.URLError:
+    except urllib.error.URLError:
         logger.info("[INFO]: No response from FW. So maybe not up!")
         return 'no'
         #sleep and check again?
@@ -379,9 +373,9 @@ def check_auto_commit_status():
     #Send command to fw and see if it times out or we get a response
     logger.info('[INFO]: Sending command: %s', cmd)
     try:
-        response = urllib2.urlopen(cmd, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(cmd, context=gcontext, timeout=5).read()
         #Now we do stuff to the portal
-    except urllib2.URLError:
+    except urllib.error.URLError:
         logger.info("[INFO]: No response from FW. So maybe not up!")
         return 'no'
         #sleep and check again?
@@ -443,7 +437,7 @@ def send_response(event, context, responseStatus):
 
     logger.info('[INFO]: Sending Response...')
     try:
-        with closing(httplib.HTTPSConnection(parsed_url.hostname)) as connection:
+        with closing(http.client.HTTPSConnection(parsed_url.hostname)) as connection:
             connection.request("PUT", parsed_url.path+"?"+parsed_url.query, json.dumps(response))
             response = connection.getresponse()
             if response.status != 200:
