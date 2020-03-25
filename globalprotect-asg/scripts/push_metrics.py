@@ -18,12 +18,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-
 import boto3
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import ssl
 import xml.etree.ElementTree as et
 import datetime
@@ -43,13 +40,11 @@ def gw_metrics_lambda_handler(event, context):
     if gwMgmtIp == None:
         logger.info("[ERROR]: Didn't get GW MGMT IP in event")
         raise Exception("[ERROR]: Didn't get GW MGMT IP in event")
-        return
 
     asg_name = event.get('asg-name')
     if asg_name == None:
         logger.info("[ERROR]: Didn't get auto scaling group name in event")
         raise Exception("[ERROR]: Didn't get auto scaling group name in event")
-        return
 
     #The api key is pre-generated for  api_user/Pal0Alt0
     api_key = "LUFRPT11dEtJM0tPTzVHMnJhelpHUzVDN2k5clpTd0E9TUdXZUpoeG5LOVJXemxuVGZ6VGtKdWNlckU2d2RoK2U2RGRxVU1Oc3VJaz0="
@@ -59,13 +54,12 @@ def gw_metrics_lambda_handler(event, context):
     show_session_cmd = "https://"+gwMgmtIp+"/api/?type=op&cmd=<show><session><info/></session></show>&key="+api_key
     logger.info('[INFO]: Sending command: %s', show_session_cmd)
     try:
-        response = urllib2.urlopen(show_session_cmd, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(show_session_cmd, context=gcontext, timeout=5).read()
         #logger.info("[RESPONSE] in send command: {}".format(response))
     except Exception as e:
          logger.info("[ERROR]: Something bad happened when sending command")
          logger.info("[RESPONSE]: {}".format(e))
          raise Exception("[ERROR]: Something bad happened when sending command")
-         return
     else:
         logger.info("[INFO]: Got a (good?) response from command")
 
@@ -74,12 +68,10 @@ def gw_metrics_lambda_handler(event, context):
     if resp_header.tag != 'response':
         logger.info("[ERROR]: didn't get a valid response from GW")
         raise Exception("[ERROR]: Didn't get a valid response from GW")
-        return
 
     if resp_header.attrib['status'] == 'error':
         logger.info("[ERROR]: Got an error for the command")
         raise Exception("[ERROR]: Got an error for the command")
-        return
 
     if resp_header.attrib['status'] == 'success':
     #The fw responded with a successful command execution.
@@ -113,7 +105,6 @@ def gw_metrics_lambda_handler(event, context):
             logger.info("[ERROR]: Error when publishing metric data")
             logger.info("[ERROR] {}".format(e))
             raise Exception("Error when publishing metric data {}".format(e))
-            return
         else:
             logger.info("[INFO]: Published metric for {}".format(gwMgmtIp))
             return

@@ -18,12 +18,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
-
 import boto3
 import logging
-import urllib2
+import urllib
 import ssl
 import xml.etree.ElementTree as et
 import time
@@ -36,9 +33,13 @@ lambda_client = boto3.client('lambda')
 iam_client = boto3.client('iam')
 events_client = boto3.client('events')
 
-
+ctx = ssl.create_default_context()
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+ctx.check_hostname = False
+    # No certificate check
+ctx.verify_mode = ssl.CERT_NONE
 
 
 #Some global variables....yikes!
@@ -100,7 +101,7 @@ def config_gw_lambda_handler(event, context):
     if asg_name == None:
         logger.info("[ERROR]: didn't get an asg name")
         #raise Exception('Failed to get ASG name in : ', inspect.stack()[1][3])
-        return;
+        return
 
     asg_hookname = event.get('asg-hookname')
     if asg_hookname == None:
@@ -204,7 +205,7 @@ def config_gw(context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     #terminate lifecycle action
@@ -235,7 +236,7 @@ def config_gw(context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     #terminate lifecycle action
@@ -265,7 +266,7 @@ def config_gw(context):
                                                         InvocationType='Event', Payload=json.dumps(parameters))
                 if invoke_response.get('StatusCode') == 202:
                     logger.info("[INFO]: Got OK from invoke lambda functions. exiting...")
-                    return;
+                    return
                 else:
                     logger.info("[ERROR]: Something bad happened when calling lambda. invoke_response = {}". format(invoke_response))
                     #terminate lifecycle action
@@ -509,33 +510,41 @@ def send_command(cmd):
     global job_id
     global gconext
     global api_key
+    gconext = ""
 
     job_id = ""
 
     if (cmd == 'commit_gw'):
-        cmd_string = "https://"+gwMgmtIp+"/api/?type=commit&cmd=<commit></commit>&key="+api_key
+        cmd_string = urllib.request.Request("https://"+gwMgmtIp+"/api/?type=commit&cmd=<commit></commit>&key="+api_key)
     elif (cmd == 'certificate'):
-        cmd_string = "https://"+gwMgmtIp+"/api/?type=op&cmd=<request><certificate><generate><signed-by>root_CA</signed-by><certificate-name>gateway-cert</certificate-name><name>"+gwDpIp+"</name><algorithm><RSA><rsa-nbits>2048</rsa-nbits></RSA></algorithm></generate></certificate></request>&key="+api_key
+        cmd_string = urllib.request.Request("https://"+gwMgmtIp+"/api/?type=op&cmd=<request><certificate><generate><signed-by>root_CA</signed-by><certificate-name>gateway-cert</certificate-name><name>"+gwDpIp+"</name><algorithm><RSA><rsa-nbits>2048</rsa-nbits></RSA></algorithm></generate></certificate></request>&key="+api_key)
+        cmdstringhttp = "https://"+gwMgmtIp+"/api/?type=op&cmd=<request><certificate><generate><signed-by>root_CA</signed-by><certificate-name>gateway-cert</certificate-name><name>"+gwDpIp+"</name><algorithm><RSA><rsa-nbits>2048</rsa-nbits></RSA></algorithm></generate></certificate></request>&key="+api_key
     elif (cmd == 'tls_profile'):
-        cmd_string = "https://"+gwMgmtIp+"/api/?type=config&action=set&xpath=/config/shared/ssl-tls-service-profile/entry[@name='gateway-ssl-tls']&element=<certificate>gateway-cert</certificate>&key="+api_key
+        cmd_string = urllib.request.Request("https://"+gwMgmtIp+"/api/?type=config&action=set&xpath=/config/shared/ssl-tls-service-profile/entry[@name='gateway-ssl-tls']&element=<certificate>gateway-cert</certificate>&key="+api_key)
     elif(cmd == 'add_gw'):
-        cmd_string = "https://"+PortalMgmtIp+"/api/?type=config&action=set&xpath=/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='portal']/client-config/configs/entry[@name='default']/gateways/external/list/entry[@name='"+gwDpIp+"']&element=<description>asg-gw"+gwDpIp+"</description><priority>1</priority><manual>yes</manual>&key="+api_key
+        cmd_string = urllib.request.Request("https://"+PortalMgmtIp+"/api/?type=config&action=set&xpath=/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='portal']/client-config/configs/entry[@name='default']/gateways/external/list/entry[@name='"+gwDpIp+"']&element=<ip><ipv4>"+gwDpIp+"</ipv4></ip><priority-rule><entry%20name='Any'><priority>1</priority></entry></priority-rule><manual>yes</manual>&key="+api_key)
+        cmdstringhttp = "https://"+PortalMgmtIp+"/api/?type=config&action=set&xpath=/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='portal']/client-config/configs/entry[@name='default']/gateways/external/list/entry[@name='"+gwDpIp+"']&element=<ip><ipv4>"+gwDpIp+"</ipv4></ip><priority-rule><entry%20name='Any'><priority>1</priority></entry></priority-rule><manual>yes</manual>&key="+api_key
     elif(cmd == 'del_gw'):
-        cmd_string = "https://"+PortalMgmtIp+"/api/?type=config&action=delete&xpath=/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='portal']/client-config/configs/entry[@name='default']/gateways/external/list/entry[@name='"+gwDpIp+"']&key="+api_key
+        cmd_string = urllib.request.Request("https://"+PortalMgmtIp+"/api/?type=config&action=delete&xpath=/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/global-protect/global-protect-portal/entry[@name='portal']/client-config/configs/entry[@name='default']/gateways/external/list/entry[@name='"+gwDpIp+"']&key="+api_key)
     elif (cmd == 'commit_portal'):
-        cmd_string = "https://"+PortalMgmtIp+"/api/?type=commit&cmd=<commit></commit>&key="+api_key
+        cmd_string = urllib.request.Request("https://"+PortalMgmtIp+"/api/?type=commit&cmd=<commit></commit>&key="+api_key)
+
     else:
         logger.info("[ERROR]: Unknown command")
         return 'false'
 
-    logger.info('[INFO]: Sending command: %s', cmd_string)
+    logger.info('[INFO]: Sending command in sendcommandfunc: %s', cmd_string)
     try:
-        response = urllib2.urlopen(cmd_string, context=gcontext, timeout=5).read()
+        
+        response = urllib.request.urlopen(cmd_string, data=None, context=ctx, timeout=5).read()
         #Now we do stuff to the gw
+
         logger.info("[RESPONSE] in send command: {}".format(response))
-    except:
-         logger.info("[ERROR]: Something bad happened when sending command")
-         return  'false'
+    except Exception as e:
+        logger.info("[ERROR]: Excpetion in send command:")
+        logger.info("[ERROR] {}".format(e))
+        logger.info("[ERROR]: Something bad happened when sending command")
+        return  'false'
     else:
         logger.info("[INFO]: Got a (good?) response from command")
 
@@ -591,14 +600,20 @@ def check_fw_up():
     global gcontext
     global gwMgmtIp
     global api_key
-    cmd = "https://"+gwMgmtIp+"/api/?type=op&cmd=<show><chassis-ready></chassis-ready></show>&key="+api_key
+    cmd = urllib.request.Request("https://"+gwMgmtIp+"/api/?type=op&cmd=<show><chassis-ready></chassis-ready></show>&key="+api_key)
+    #cmd = "https://"+gwMgmtIp+"/api/?type=op&cmd=<show><chassis-ready></chassis-ready></show>&key="+api_key
     #Send command to fw and see if it times out or we get a response
-    logger.info('[INFO]: Sending command: %s', cmd)
+    logger.info('[INFO]: Sending command in checkfwfunc: %s', cmd)
     try:
-        response = urllib2.urlopen(cmd, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(cmd, data=None, context=ctx, timeout=5).read()
+        #response = urllib.request.Request(cmd)
+        #http = urllib3.PoolManager()
+        #response = http.request('GET', cmd, timeout=5, verify=False)
+        #response = urllib.request.urlopen(cmd, context=gcontext, timeout=5).read()
+        print(("[INFO]: Response Value: {}".format(response)))
         #Now we do stuff to the gw
-    except urllib2.URLError:
-        logger.info("[INFO]: No response from FW. So maybe not up!")
+    except urllib.error.URLError as e: 
+        logger.info("[INFO]: No response from FW. So maybe not up! without cache {}".format(e))
         return 'no'
         #sleep and check again?
     else:
@@ -637,18 +652,24 @@ def check_auto_commit_status():
     global api_key
 
     job_id = '1' #auto commit job id is always 1
-    cmd = "https://"+gwMgmtIp+"/api/?type=op&cmd=<show><jobs><id>"+job_id+"</id></jobs></show>&key="+api_key
+    cmd = urllib.request.Request("https://" + gwMgmtIp + "/api/?type=op&cmd=<show><jobs><id>"+job_id+"</id></jobs></show>&key=" + api_key)
+    # cmd = "https://"+gwMgmtIp+"/api/?type=op&cmd=<show><jobs><id>"+job_id+"</id></jobs></show>&key="+api_key
     #Send command to fw and see if it times out or we get a response
-    logger.info('[INFO]: Sending command: %s', cmd)
+    logger.info('[INFO]: Sending command in checkautofunc: %s', cmd)
     try:
-        response = urllib2.urlopen(cmd, context=gcontext, timeout=5).read()
+        response = urllib.request.urlopen(cmd, data=None, context=ctx, timeout=5).read()
+        #response = urllib.request.Request(cmd)
+        #http = urllib3.PoolManager()
+        #response = http.request('GET', cmd, timeout=5, verify=False)
+        #response = urllib.request.urlopen(cmd, context=gcontext, timeout=5).read()
+        #logger.info('[INFO]: Response Value in workaround: {}'.format(response))
         #Now we do stuff to the gw
-    except urllib2.URLError:
-        logger.info("[INFO]: No response from FW. So maybe not up!")
+    except urllib.error.URLError as e: 
+        logger.info("[INFO]: No response from FW in workaround. So maybe not up! without cache {}".format(e))
         return 'no'
         #sleep and check again?
     else:
-        logger.info("[INFO]: FW is up!!")
+        logger.info("[INFO]: FW is up in workaround!!")
 
     logger.info("[RESPONSE]: {}".format(response))
     resp_header = et.fromstring(response)
@@ -694,11 +715,11 @@ def terminate(success):
 
     #log that we're terminating and why
     if (success == 'false'):
-      logging.error("[ERROR]: Lambda function reporting failure to AutoScaling with error\n");
-      result = "ABANDON"
+        logging.error("[ERROR]: Lambda function reporting failure to AutoScaling with error\n")
+        result = "ABANDON"
     else:
-      logger.info("[INFO]: Lambda function reporting success to AutoScaling.");
-      result = "CONTINUE";
+        logger.info("[INFO]: Lambda function reporting success to AutoScaling.")
+        result = "CONTINUE"
 
     logger.info("[INFO]: asg_name: {}, asg_hookname: {}, instanceId: {}".format(asg_name, asg_hookname, instanceId))
     #call autoscaling

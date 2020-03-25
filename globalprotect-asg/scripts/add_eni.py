@@ -25,9 +25,6 @@ import json
 import logging
 import botocore
 
-#from urlparse import urlparse
-#from contextlib import closing
-#import httplib
 
 asg = boto3.client('autoscaling')
 ec2 = boto3.resource('ec2')
@@ -80,11 +77,9 @@ def add_eni_lambda_handler(event, context):
             elif (message.get('Event') == "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"):
                 logger.info("[INFO]: GOT a GW terminate error...raise exception for now")
                 raise Exception ("Failed to terminate a GW in an autoscale event")
-                return
             elif (message.get('Event') == "autoscaling:EC2_INSTANCE_LAUNCH_ERROR"):
                 logger.info("[INFO]: GOT a GW launch error...raise exception for now")
                 raise Exception ("Failed to launch a GW in an autoscale event")
-                return
         elif 'LifecycleTransition' in message:
             if (message.get('LifecycleTransition') == "autoscaling:EC2_INSTANCE_LAUNCHING"):
                 logger.info("[INFO] Lifecyclehook Launching\n")
@@ -98,21 +93,18 @@ def add_eni_lambda_handler(event, context):
     else:
         logger.info("[ERROR]: Something else entirely")
         raise Exception("[ERROR]: Something else entirely")
-        return
 
     if event_type == 'launch' or event_type == 'terminate':
         instanceId = message.get('EC2InstanceId')
         if instanceId == None:
             logger.info("[ERROR] Instance ID is None. Should not be!")
             terminate('false', message)
-            raise Exception('Failed to get EC2 Instance Id in add_eni.py');
-            return
+            raise Exception('Failed to get EC2 Instance Id in add_eni.py')
         metadata = message.get('NotificationMetadata')
         if metadata == None:
             logger.info("[ERROR] Metadata is None. Should not be!")
             terminate('false', message)
-            raise Exception('Failed to get Notification Metadata in add_eni.py');
-            return
+            raise Exception('Failed to get Notification Metadata in add_eni.py')
         #The Notification Metadata object for lifecyclehook is used to pass parameters:
         #the structure for now is hardcoded and it is a comma separated list
         #{
@@ -210,18 +202,18 @@ def launch_gw(event, message):
     #Wait for the ENI to be 'available'
     err = waitEniReady(eniId)
     if err == 'false':
-        logger.info("ERROR: Failure waiting for ENI to be ready");
-        terminate('false', message);
+        logger.info("ERROR: Failure waiting for ENI to be ready")
+        terminate('false', message)
         return
 
     #Attach the network interface to the instance
     err = attachEni(instanceId, eniId)
     if err == 'false':
-        logger.info("[ERROR]: Failure attaching ENI to instance");
-        terminate('false', message);
+        logger.info("[ERROR]: Failure attaching ENI to instance")
+        terminate('false', message)
         return
     else:
-        logger.info("[INFO]: Success! Attached ENI to instance");
+        logger.info("[INFO]: Success! Attached ENI to instance")
 
     err = allocate_and_attach_eip(eniId)
     if err == 'false':
@@ -258,10 +250,10 @@ def launch_gw(event, message):
                                             InvocationType='Event', Payload=json.dumps(parameters))
     if invoke_response.get('StatusCode') == 202:
         logger.info("[INFO]: Got OK from invoke lambda functions for launch. exiting...")
-        return;
+        return
     else:
         logger.info("[ERROR]: Something bad happened for launch. invoke_response = {}". format(invoke_response))
-        terminate('false', message);
+        terminate('false', message)
         return
 
 ###END LAUNCH CODE
@@ -336,11 +328,11 @@ def terminate_gw(event, message):
             logger.info("[INFO]: Got OK from invoke lambda functions for terminate. Continue...")
         else:
             logger.info("[ERROR]: terminating gw returned error. invoke_response = {}". format(invoke_response))
-            terminate('false', message);
+            terminate('false', message)
             return
     else:
         logger.info("[ERROR]: Something bad happened for terminate. invoke_response = {}". format(invoke_response))
-        terminate('false', message);
+        terminate('false', message)
         return
 
 
@@ -416,28 +408,37 @@ def terminate_gw(event, message):
 
 
 def allocate_and_attach_eip(Id):
+    logger.info("[INFO]: Entering allocateandattach def")
     eip_address_dict = ec2_client.describe_addresses()
+    logger.info("[INFO]: eipaddressdict = {}".format(eip_address_dict))
     #List of IP addresses is not empty, so we may have an unassociated IP address?
-    eipList = eip_address_dict['Addresses']
-    if not eipList:
-        eip = allocateEip()
-        if eip == 'false':
-            return 'false'
-    else:
-        #There are some elastic IPs floating around, so find if one of the is not associated with an instance
-        logger.info("[INFO]: Found some EIPs")
-        eip = getUnassociatedAddress(eipList)
-        #If the address is blank, then no unassociated addresses were found
-        if eip is None:
-            #So allocate an elastic ip
-            eip = allocateEip()
-            if eip == 'false':
-                return 'false'
+    #eipList = eip_address_dict['Addresses']
+    eip = allocateEip()
+    #if not eipList:
+    #    eip = allocateEip()
+    #    if eip == 'false':
+    #        return 'false'
+    #else:
+    #    #There are some elastic IPs floating around, so find if one of the is not associated with an instance
+    #    logger.info("[INFO]: Found some EIPs")
+    #    eip = getUnassociatedAddress(eipList)
+    #    logger.info("[INFO]: eip var in else statement = {}".format(eip))
+    #    #If the address is blank, then no unassociated addresses were found
+    #    if eip is None:
+    #        #So allocate an elastic ip
+    #        eip = allocateEip()
+    #        logger.info("[INFO]: did we enter the eip is none block? = {}".format(eip))
+    #        if eip == 'false':
+    #            logger.info("[INFO]: is eip == false? = {}".format(eip))
+    #            return 'false'
 
     err = associateAddress(eip['AllocationId'], Id)
+    logger.info("[INFO]: does err have an allocationID = {}".format(err))
     if err == 'false':
+        logger.info("[INFO]: is err false = {}".format(err))
         return 'false'
-    return  eip
+    logger.info("[INFO]: what is the EIP? = {}".format(eip))
+    return eip
 
 
 
@@ -446,11 +447,10 @@ def createEni(subnetId, securityGroups):
     try:
         nif = ec2.create_network_interface(SubnetId=subnetId, Groups=[securityGroups], Description="GPGateway DP")
     except Exception as e:
-        logger.info("[ERROR]: ENI creation failed {}".format(e));
-        logger.info(error)
+        logger.info("[ERROR]: ENI creation failed {}".format(e))
         return 'false'
     else:
-        logger.info("INFO: ENI Created.\n");
+        logger.info("INFO: ENI Created.\n")
         nif.modify_attribute(SourceDestCheck={'Value': False})
         while True:
             try:
@@ -536,11 +536,11 @@ def terminate(success, asg_message):
     else:
         #log that we're terminating and why
         if (success == 'false'):
-            logging.error("[ERROR]: Lambda function reporting failure to AutoScaling with error:\n");
+            logging.error("[ERROR]: Lambda function reporting failure to AutoScaling with error:\n")
             result = "ABANDON"
         else:
-            logger.info("[INFO]: Lambda function reporting success to AutoScaling.");
-            result = "CONTINUE";
+            logger.info("[INFO]: Lambda function reporting success to AutoScaling.")
+            result = "CONTINUE"
 
         #call autoscaling
         asg.complete_lifecycle_action(
