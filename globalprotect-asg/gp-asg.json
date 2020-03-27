@@ -25,6 +25,114 @@
         "FirewallAMI": {
             "Description": "Input the firewall AMI ID. https://docs.paloaltonetworks.com/compatibility-matrix/vm-series-firewalls/aws-cft-amazon-machine-images-ami-list",
             "Type": "AWS::EC2::Image::Id"
+        },
+        "InstanceTypePortal": {
+            "Description": "EC2 instance type for the Portal, C5/M5 requires v9.x",
+            "Type": "String",
+            "Default": "c5.2xlarge",
+            "AllowedValues": [
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.18xlarge",
+                "c5n.xlarge",
+                "c5n.2xlarge",
+                "c5n.4xlarge",
+                "c5n.9xlarge",
+                "c5n.18xlarge",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.12xlarge",
+                "m5.24xlarge",
+                "m5n.xlarge",
+                "m5n.2xlarge",
+                "m5n.4xlarge",
+                "m5n.8xlarge",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        },
+        "InstanceTypeGateway": {
+            "Description": "EC2 instance type for the Gateways, C5/M5 requires v9.x",
+            "Type": "String",
+            "Default": "c5.2xlarge",
+            "AllowedValues": [
+                "c5.xlarge",
+                "c5.2xlarge",
+                "c5.4xlarge",
+                "c5.9xlarge",
+                "c5.18xlarge",
+                "c5n.xlarge",
+                "c5n.2xlarge",
+                "c5n.4xlarge",
+                "c5n.9xlarge",
+                "c5n.18xlarge",
+                "m5.xlarge",
+                "m5.2xlarge",
+                "m5.4xlarge",
+                "m5.12xlarge",
+                "m5.24xlarge",
+                "m5n.xlarge",
+                "m5n.2xlarge",
+                "m5n.4xlarge",
+                "m5n.8xlarge",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "m3.xlarge",
+                "m3.2xlarge"
+            ],
+            "ConstraintDescription": "must be a valid EC2 instance type."
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Firewall Parameters"
+                    },
+                    "Parameters": [
+                        "ServerKeyName",
+                        "AZchoice",
+                        "FirewallAMI",
+                        "InstanceTypePortal",
+                        "InstanceTypeGateway"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Amazon Configuration"
+                    },
+                    "Parameters": [
+                        "PortalBootstrapBucketName",
+                        "GatewayBootstrapBucketName",
+                        "LambdaBucketName"
+                    ]
+                }
+            ]
         }
     },
     "Resources": {
@@ -710,7 +818,9 @@
                 "ImageId": {
                     "Ref": "FirewallAMI"
                 },
-                "InstanceType": "c5.xlarge",
+                "InstanceType": {
+                    "Ref": "InstanceTypePortal"
+                },
                 "KeyName": {
                     "Ref": "ServerKeyName"
                 },
@@ -801,7 +911,9 @@
                     "Ref": "ServerKeyName"
                 },
                 "AssociatePublicIpAddress": true,
-                "InstanceType": "c5.xlarge",
+                "InstanceType": {
+                    "Ref": "InstanceTypeGateway"
+                },
                 "BlockDeviceMappings": [
                     {
                         "DeviceName": "/dev/xvda",
